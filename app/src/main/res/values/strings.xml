@@ -1,0 +1,25 @@
+<resources>
+    <string name="app_name">local-attendance_app</string>
+    <string name="mapbox_access_token">pk.eyJ1IjoiY2hlc3Nwb3JnIiwiYSI6ImNrdGw3c2g0NzFpMWoyd282ZjhyNGpyOTcifQ.nCfPNq04dgxyscrdR7TR6Q</string>
+    <string name="full_name">Full Name</string>
+    <string name="address_mail">address@mail.com</string>
+    <string name="name_month">Name_Month</string>
+    <string name="dummy_day_date">xx</string>
+    <string name="dummy_month_date">xxx</string>
+    <string name="start">Start</string>
+    <string name="wib">-- : -- WIB</string>
+    <string name="end">End</string>
+    <string name="total">Total</string>
+    <string name="total_hour">-- : --</string>
+    <string name="finish_working_to_log_out">Finish working to log out</string>
+    <string name="working_location">Working Location</string>
+    <string name="latitude_s_longitude_s">Latitude: %1$s || Longitude: %2$s</string>
+    <string name="telkom_university_jl_telekomunikasi_no_1_terusan_buahbatu_bojongsoang_sukapura_kec_dayeuhkolot_bandung_jawa_barat_40257">Telkom University, Jl. Telekomunikasi No. 1,Terusan Buahbatu - Bojongsoang, Sukapura, Kec. Dayeuhkolot, Bandung, Jawa Barat 40257</string>
+    <string name="finish_working">Finish Working</string>
+    <string name="stop">Stop</string>
+    <string name="starting_location">Starting Location</string>
+    <string name="location_used_to_start_working">Location Used To Start Working</string>
+    <string name="submit_location">Submit Location</string>
+    <string name="change">Change</string>
+    <string name="none">None</string>
+</resources>

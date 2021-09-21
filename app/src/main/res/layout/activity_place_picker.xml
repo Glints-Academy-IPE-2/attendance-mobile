@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.placepicker.PlacePickerActivity">
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cv_header"
+        android:layout_width="match_parent"
+        android:layout_height="85dp"
+        android:layout_marginTop="-8dp"
+        app:cardBackgroundColor="@color/blue_primary"
+        app:cardCornerRadius="10dp"
+        app:cardElevation="10dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tv_header1"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:elevation="10dp"
+        android:fontFamily="@font/alegreyasans_extrabold"
+        android:letterSpacing="0.05"
+        android:text="@string/starting_location"
+        android:textAlignment="center"
+        android:textColor="@color/white"
+        android:textSize="24sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tv_header2"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:elevation="10dp"
+        android:fontFamily="@font/alegreyasans_medium"
+        android:letterSpacing="0.05"
+        android:text="@string/location_used_to_start_working"
+        android:textAlignment="center"
+        android:textColor="@color/white"
+        android:textSize="12sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_header1" />
+
+    <com.mapbox.mapboxsdk.maps.MapView
+        android:id="@+id/map_view"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@color/blank_background_color"
+        app:layout_constraintBottom_toTopOf="@id/v_bottom_container"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/cv_header" />
+
+    <View
+        android:id="@+id/v_bottom_container"
+        android:layout_width="match_parent"
+        android:layout_height="240dp"
+        android:background="@drawable/location_view_bottom_container"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+    <TextView
+        android:id="@+id/tv_location_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="32dp"
+        android:layout_marginTop="24dp"
+        android:fontFamily="@font/alegreyasans_bold"
+        android:letterSpacing="0.05"
+        android:text="@string/working_location"
+        android:textColor="@color/darkpurple_text_color"
+        android:textSize="28sp"
+        app:layout_constraintTop_toTopOf="@id/v_bottom_container" />
+
+    <ImageView
+        android:id="@+id/iv_coordinate_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:src="@drawable/ic_round_language_24"
+        app:layout_constraintStart_toStartOf="@id/tv_location_title"
+        app:layout_constraintTop_toBottomOf="@id/tv_location_title"
+        app:tint="@color/darkpurple_text_color"
+        tools:ignore="ContentDescription" />
+
+    <TextView
+        android:id="@+id/tv_coordniate"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="6dp"
+        android:ellipsize="end"
+        android:fontFamily="@font/alegreyasans_bold"
+        android:letterSpacing="0.05"
+        android:maxLines="1"
+        android:text="@string/latitude_s_longitude_s"
+        android:textColor="@color/darkpurple_text_color"
+        android:textSize="12sp"
+        app:layout_constraintEnd_toEndOf="@id/tv_location_title"
+        app:layout_constraintStart_toEndOf="@id/iv_coordinate_icon"
+        app:layout_constraintTop_toTopOf="@id/iv_coordinate_icon"
+        tools:ignore="SmallSp" />
+
+    <ImageView
+        android:id="@+id/iv_location_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:src="@drawable/ic_round_place_24"
+        app:layout_constraintStart_toStartOf="@id/iv_coordinate_icon"
+        app:layout_constraintTop_toBottomOf="@id/iv_coordinate_icon"
+        app:tint="@color/darkpurple_text_color"
+        tools:ignore="ContentDescription" />
+
+    <TextView
+        android:id="@+id/tv_location_name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="6dp"
+        android:ellipsize="end"
+        android:fontFamily="@font/alegreyasans_bold"
+        android:letterSpacing="0.05"
+        android:maxLines="3"
+        android:text="@string/none"
+        android:textColor="@color/darkpurple_text_color"
+        android:textSize="12sp"
+        app:layout_constraintEnd_toEndOf="@id/tv_location_title"
+        app:layout_constraintStart_toEndOf="@id/iv_location_icon"
+        app:layout_constraintTop_toTopOf="@id/iv_location_icon"
+        tools:ignore="SmallSp" />
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cv_submit_location_button"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginHorizontal="24dp"
+        android:layout_marginBottom="24dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:foreground="?attr/selectableItemBackgroundBorderless"
+        app:cardBackgroundColor="@color/blue_primary"
+        app:cardCornerRadius="24dp"
+        app:cardElevation="8dp"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <TextView
+            android:id="@+id/tv_submit_location_button"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fontFamily="@font/alegreyasans_bold"
+            android:gravity="center"
+            android:text="@string/submit_location"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp" />
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cv_change_map_button"
+        android:layout_width="70dp"
+        android:layout_height="20dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:foreground="?attr/selectableItemBackgroundBorderless"
+        app:cardBackgroundColor="@color/blue_primary"
+        app:cardCornerRadius="24dp"
+        app:cardElevation="8dp"
+        app:layout_constraintBottom_toBottomOf="@id/tv_location_title"
+        app:layout_constraintEnd_toEndOf="@id/tv_location_title"
+        app:layout_constraintTop_toTopOf="@id/tv_location_title">
+
+        <TextView
+            android:id="@+id/tv_change_location_button"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fontFamily="@font/alegreyasans_bold"
+            android:gravity="center"
+            android:text="@string/change"
+            android:textColor="#FFFFFF"
+            android:textSize="12sp" />
+    </androidx.cardview.widget.CardView>
+</androidx.constraintlayout.widget.ConstraintLayout>

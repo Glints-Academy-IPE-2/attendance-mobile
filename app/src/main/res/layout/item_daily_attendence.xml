@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginVertical="4dp"
+    android:background="@drawable/daily_attendance_bg"
+    android:clickable="true"
+    android:foreground="?attr/selectableItemBackgroundBorderless"
+    android:padding="20dp">
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cv_date_container"
+        android:layout_width="64dp"
+        android:layout_height="72dp"
+        app:cardCornerRadius="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tv_date_day_number"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/alegreyasans_bold"
+                android:letterSpacing="0.05"
+                android:text="@string/dummy_day_date"
+                android:textAlignment="center"
+                android:textColor="@color/black"
+                android:textSize="20sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.25" />
+
+            <TextView
+                android:id="@+id/tv_date_day_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="-8dp"
+                android:fontFamily="@font/alegreyasans_bold"
+                android:letterSpacing="0.05"
+                android:text="@string/dummy_month_date"
+                android:textAlignment="center"
+                android:textColor="@color/black"
+                android:textSize="20sp"
+                app:layout_constraintTop_toBottomOf="@id/tv_date_day_number" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.cardview.widget.CardView>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="18dp"
+        android:fontFamily="@font/alegreyasans_bold"
+        android:text="@string/start"
+        android:textColor="@color/black"
+        app:layout_constraintBottom_toTopOf="@id/tv_start_hour"
+        app:layout_constraintEnd_toEndOf="@id/tv_start_hour"
+        app:layout_constraintStart_toStartOf="@id/tv_start_hour" />
+
+    <TextView
+        android:id="@+id/tv_start_hour"
+        android:layout_width="wrap_content"
+        android:layout_height="16dp"
+        android:layout_marginStart="32dp"
+        android:fontFamily="@font/alegreyasans_bold"
+        android:text="@string/wib"
+        android:textColor="@color/black"
+        android:textSize="13sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintHorizontal_bias="0.02"
+        app:layout_constraintStart_toEndOf="@id/cv_date_container"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.7" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="18dp"
+        android:fontFamily="@font/alegreyasans_bold"
+        android:text="@string/end"
+        android:textColor="@color/black"
+        app:layout_constraintBottom_toTopOf="@id/tv_end_hour"
+        app:layout_constraintEnd_toEndOf="@id/tv_end_hour"
+        app:layout_constraintStart_toStartOf="@id/tv_end_hour" />
+
+    <TextView
+        android:id="@+id/tv_end_hour"
+        android:layout_width="wrap_content"
+        android:layout_height="16dp"
+        android:fontFamily="@font/alegreyasans_bold"
+        android:text="@string/wib"
+        android:textColor="@color/black"
+        android:textSize="13sp"
+        app:layout_constraintBottom_toBottomOf="@id/tv_start_hour"
+        app:layout_constraintEnd_toStartOf="@id/tv_total_hour"
+        app:layout_constraintStart_toEndOf="@id/tv_start_hour"
+        app:layout_constraintTop_toTopOf="@id/tv_start_hour" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="18dp"
+        android:fontFamily="@font/alegreyasans_bold"
+        android:text="@string/total"
+        android:textColor="@color/black"
+        app:layout_constraintBottom_toTopOf="@id/tv_total_hour"
+        app:layout_constraintEnd_toEndOf="@id/tv_total_hour"
+        app:layout_constraintStart_toStartOf="@id/tv_total_hour" />
+
+    <TextView
+        android:id="@+id/tv_total_hour"
+        android:layout_width="wrap_content"
+        android:layout_height="16dp"
+        android:layout_marginStart="48dp"
+        android:layout_marginEnd="24dp"
+        android:fontFamily="@font/alegreyasans_bold"
+        android:text="@string/total_hour"
+        android:textColor="@color/black"
+        android:textSize="13sp"
+        app:layout_constraintBottom_toBottomOf="@id/tv_end_hour"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/tv_end_hour" />
+</androidx.constraintlayout.widget.ConstraintLayout>
