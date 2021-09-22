@@ -4,6 +4,7 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="..\:/Projects/AndroidStudio/localattendance_app/app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.2916666666666667" />
+        <entry key="..\:/Projects/AndroidStudio/localattendance_app/app/src/main/res/drawable/bg_user_location.xml" value="0.15989583333333332" />
         <entry key="..\:/Projects/AndroidStudio/localattendance_app/app/src/main/res/drawable/daily_attendence_bg.xml" value="0.2916666666666667" />
         <entry key="..\:/Projects/AndroidStudio/localattendance_app/app/src/main/res/drawable/date_attendance_bg.xml" value="0.2916666666666667" />
         <entry key="..\:/Projects/AndroidStudio/localattendance_app/app/src/main/res/drawable/date_attendence_bg.xml" value="0.2916666666666667" />
@@ -11,6 +12,7 @@
         <entry key="..\:/Projects/AndroidStudio/localattendance_app/app/src/main/res/drawable/header_home.xml" value="0.2916666666666667" />
         <entry key="..\:/Projects/AndroidStudio/localattendance_app/app/src/main/res/drawable/ic_baseline_menu_24.xml" value="0.2916666666666667" />
         <entry key="..\:/Projects/AndroidStudio/localattendance_app/app/src/main/res/drawable/ic_launcher_background.xml" value="0.2916666666666667" />
+        <entry key="..\:/Projects/AndroidStudio/localattendance_app/app/src/main/res/drawable/ic_round_emoji_people_24.xml" value="0.15989583333333332" />
         <entry key="..\:/Projects/AndroidStudio/localattendance_app/app/src/main/res/drawable/ic_round_logout_24.xml" value="0.2916666666666667" />
         <entry key="..\:/Projects/AndroidStudio/localattendance_app/app/src/main/res/drawable/location_view_bottom_container.xml" value="0.2916666666666667" />
         <entry key="..\:/Projects/AndroidStudio/localattendance_app/app/src/main/res/drawable/today_attendance_bg.xml" value="0.2916666666666667" />

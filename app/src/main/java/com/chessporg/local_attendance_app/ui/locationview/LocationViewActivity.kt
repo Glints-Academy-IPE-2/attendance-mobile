@@ -1,6 +1,7 @@
 package com.chessporg.local_attendance_app.ui.locationview
 
 import android.annotation.SuppressLint
+import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -24,6 +25,7 @@ import com.mapbox.mapboxsdk.camera.CameraUpdateFactory
 import com.mapbox.mapboxsdk.geometry.LatLng
 import com.mapbox.mapboxsdk.geometry.LatLngBounds
 import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions
+import com.mapbox.mapboxsdk.location.LocationComponentOptions
 import com.mapbox.mapboxsdk.location.modes.CameraMode
 import com.mapbox.mapboxsdk.location.modes.RenderMode
 import com.mapbox.mapboxsdk.maps.MapView
@@ -141,12 +143,22 @@ class LocationViewActivity : AppCompatActivity(), PermissionsListener, OnMapRead
     private fun enableLocationComponent(loadedMapStyle: Style) {
         if (PermissionsManager.areLocationPermissionsGranted(this)) {
             val locationComponent = map.locationComponent
+
+            val customLocationComponentOptions = LocationComponentOptions.builder(this)
+                .elevation(5f)
+                .accuracyAlpha(1f)
+                .accuracyColor(Color.TRANSPARENT)
+                .backgroundDrawable(R.drawable.bg_user_location)
+                .foregroundDrawable(R.drawable.ic_round_emoji_people_24)
+                .build()
+
             locationComponent.apply {
                 activateLocationComponent(
                     LocationComponentActivationOptions.builder(
                         this@LocationViewActivity,
-                        loadedMapStyle
-                    ).build()
+                        loadedMapStyle)
+                        .locationComponentOptions(customLocationComponentOptions)
+                        .build()
                 )
                 isLocationComponentEnabled = true
                 cameraMode = CameraMode.NONE

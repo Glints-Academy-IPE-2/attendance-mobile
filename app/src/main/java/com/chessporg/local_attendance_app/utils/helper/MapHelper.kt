@@ -10,6 +10,6 @@ object MapHelper {
     const val ANIMATE_CAMERA_DURATION = 2500
 
     var firstSetLocation = LatLng(-0.23857894191359583, 119.64293910793991)
-    var currentWorkingCoordinate = LatLng(0.0, 0.0)
-    var currentWorkingPlaceName = "NONE"
+    var currentWorkingCoordinate = LatLng(-7.6737, 110.3388)
+    var currentWorkingPlaceName = "Warung gaess"
 }
