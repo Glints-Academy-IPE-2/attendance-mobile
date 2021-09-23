@@ -3,6 +3,7 @@ package com.chessporg.local_attendance_app.ui.placepicker
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
+import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
@@ -24,8 +25,12 @@ import com.mapbox.mapboxsdk.maps.MapView
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
 import com.mapbox.mapboxsdk.maps.Style
+import com.mapbox.mapboxsdk.plugins.annotation.CircleManager
+import com.mapbox.mapboxsdk.plugins.annotation.CircleOptions
 import com.mapbox.mapboxsdk.plugins.places.picker.PlacePicker
 import com.mapbox.mapboxsdk.plugins.places.picker.model.PlacePickerOptions
+import com.mapbox.mapboxsdk.style.layers.CircleLayer
+import com.mapbox.mapboxsdk.utils.ColorUtils
 
 class PlacePickerActivity : AppCompatActivity(), OnMapReadyCallback {
 
@@ -38,6 +43,8 @@ class PlacePickerActivity : AppCompatActivity(), OnMapReadyCallback {
     private var mapView: MapView? = null
     private lateinit var map: MapboxMap
     private var marker: Marker? = null
+    private lateinit var loadedStyleMap: Style
+    private var circleManager: CircleManager? = null
     private var currentPickedLocationLatLng = LatLng(-0.23857894191359583, 119.64293910793991)
     private var currentPickedLocationName = "None"
 
@@ -114,6 +121,26 @@ class PlacePickerActivity : AppCompatActivity(), OnMapReadyCallback {
                         .title("Working Location")
                 )
             }
+
+            // Add Circle Area to working location
+            run {
+                if (circleManager == null) {
+                    circleManager = CircleManager(mapView!!, map, loadedStyleMap)
+                }
+
+                val circleOptions = CircleOptions()
+                    .withCircleRadius(100f)
+                    .withCircleColor(ColorUtils.colorToRgbaString(Color.BLUE))
+                    .withCircleOpacity(0.2f)
+                    .withCircleStrokeColor(ColorUtils.colorToRgbaString(Color.BLUE))
+                    .withCircleStrokeWidth(2f)
+                    .withCircleStrokeOpacity(0.6f)
+                    .withLatLng(MapHelper.currentWorkingCoordinate)
+
+                circleManager?.deleteAll()
+                circleManager?.create(circleOptions)
+            }
+
             mapView?.getMapAsync(this)
         }
     }
@@ -121,6 +148,7 @@ class PlacePickerActivity : AppCompatActivity(), OnMapReadyCallback {
     override fun onMapReady(mapboxMap: MapboxMap) {
         map = mapboxMap
         map.setStyle(Style.MAPBOX_STREETS) {
+            loadedStyleMap = it
             // Map UI settings
             run {
                 val uiSettings = mapboxMap.uiSettings
@@ -131,7 +159,7 @@ class PlacePickerActivity : AppCompatActivity(), OnMapReadyCallback {
             run {
                 val position = CameraPosition.Builder()
                     .target(currentPickedLocationLatLng)
-                    .zoom((if(marker!= null) ZOOM_VALUE else INDONESIA_ZOOM_VALUE) as Double)
+                    .zoom(if(marker!= null) ZOOM_VALUE else INDONESIA_ZOOM_VALUE)
                     .build()
                 map.animateCamera(CameraUpdateFactory.newCameraPosition(position), ANIMATE_CAMERA_DURATION)
                 setLocationInformation()

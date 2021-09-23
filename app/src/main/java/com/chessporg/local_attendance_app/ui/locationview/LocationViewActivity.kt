@@ -19,6 +19,7 @@ import com.chessporg.local_attendance_app.utils.helper.MapHelper.currentWorkingC
 import com.mapbox.android.core.location.*
 import com.mapbox.android.core.permissions.PermissionsListener
 import com.mapbox.android.core.permissions.PermissionsManager
+import com.mapbox.geojson.Feature
 import com.mapbox.mapboxsdk.Mapbox
 import com.mapbox.mapboxsdk.annotations.MarkerOptions
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory
@@ -32,6 +33,12 @@ import com.mapbox.mapboxsdk.maps.MapView
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
 import com.mapbox.mapboxsdk.maps.Style
+import com.mapbox.mapboxsdk.plugins.annotation.CircleManager
+import com.mapbox.mapboxsdk.plugins.annotation.CircleOptions
+import com.mapbox.mapboxsdk.plugins.markerview.MarkerView
+import com.mapbox.mapboxsdk.plugins.markerview.MarkerViewManager
+import com.mapbox.mapboxsdk.style.layers.PropertyFactory
+import com.mapbox.mapboxsdk.utils.ColorUtils
 
 class LocationViewActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallback {
 
@@ -42,6 +49,8 @@ class LocationViewActivity : AppCompatActivity(), PermissionsListener, OnMapRead
     private lateinit var map: MapboxMap
     private lateinit var callback: LocationListeningCallback
     private lateinit var locationEngine: LocationEngine
+    private lateinit var loadedStyleMap: Style
+    private var circleManager: CircleManager? = null
     private var currentUserLatitude = 0.0
     private var currentUserLongitude = 0.0
 
@@ -90,6 +99,7 @@ class LocationViewActivity : AppCompatActivity(), PermissionsListener, OnMapRead
     override fun onMapReady(mapboxMap: MapboxMap) {
         map = mapboxMap
         map.setStyle(Style.MAPBOX_STREETS) {
+            loadedStyleMap = it
             // Map is set up and the style has loaded. Now you can add data or make other map adjustments
             binding.spinKit.visibility = View.GONE
 
@@ -106,9 +116,39 @@ class LocationViewActivity : AppCompatActivity(), PermissionsListener, OnMapRead
 
             // Add marker to working location
             run {
+                /*
                 map.addMarker(MarkerOptions()
                     .position(currentWorkingCoordinate)
                     .title("Working Location"))
+                 */
+
+                /*
+                val markerViewManager = MarkerViewManager(mapView, map)
+                val marker = binding.ivMarker
+                binding.root.removeView(marker)
+                val markerView = MarkerView(currentWorkingCoordinate, marker)
+                markerViewManager.addMarker(markerView)
+                marker.visibility = View.VISIBLE
+                 */
+            }
+
+            // Add Circle Area to working location
+            run {
+                if (circleManager == null) {
+                    circleManager = CircleManager(mapView!!, map, loadedStyleMap)
+                }
+
+                val circleOptions = CircleOptions()
+                    .withCircleRadius(100f)
+                    .withCircleColor(ColorUtils.colorToRgbaString(Color.BLUE))
+                    .withCircleOpacity(0.2f)
+                    .withCircleStrokeColor(ColorUtils.colorToRgbaString(Color.BLUE))
+                    .withCircleStrokeWidth(2f)
+                    .withCircleStrokeOpacity(0.6f)
+                    .withLatLng(currentWorkingCoordinate)
+
+                circleManager?.deleteAll()
+                circleManager?.create(circleOptions)
             }
         }
     }
