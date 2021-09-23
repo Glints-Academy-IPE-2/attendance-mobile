@@ -68,8 +68,7 @@ class LocationViewActivity : AppCompatActivity(), PermissionsListener, OnMapRead
         setStatusBarColor()
     }
 
-    private inner class LocationListeningCallback(activity: LocationViewActivity) :
-        LocationEngineCallback<LocationEngineResult> {
+    private inner class LocationListeningCallback(activity: LocationViewActivity) : LocationEngineCallback<LocationEngineResult> {
 
         override fun onSuccess(result: LocationEngineResult?) {
             result?.lastLocation ?: return
@@ -96,60 +95,13 @@ class LocationViewActivity : AppCompatActivity(), PermissionsListener, OnMapRead
         }
     }
 
-    override fun onMapReady(mapboxMap: MapboxMap) {
-        map = mapboxMap
-        map.setStyle(Style.MAPBOX_STREETS) {
-            loadedStyleMap = it
-            // Map is set up and the style has loaded. Now you can add data or make other map adjustments
-            binding.spinKit.visibility = View.GONE
-
-            // Map UI settings
-            run {
-                val uiSettings = map.uiSettings
-                uiSettings.setAllGesturesEnabled(false)
-            }
-
-            // Show Device
-            run {
-                enableLocationComponent(it)
-            }
-
-            // Add marker to working location
-            run {
-                /*
-                map.addMarker(MarkerOptions()
-                    .position(currentWorkingCoordinate)
-                    .title("Working Location"))
-                 */
-
-                /*
-                val markerViewManager = MarkerViewManager(mapView, map)
-                val marker = binding.ivMarker
-                binding.root.removeView(marker)
-                val markerView = MarkerView(currentWorkingCoordinate, marker)
-                markerViewManager.addMarker(markerView)
-                marker.visibility = View.VISIBLE
-                 */
-            }
-
-            // Add Circle Area to working location
-            run {
-                if (circleManager == null) {
-                    circleManager = CircleManager(mapView!!, map, loadedStyleMap)
-                }
-
-                val circleOptions = CircleOptions()
-                    .withCircleRadius(100f)
-                    .withCircleColor(ColorUtils.colorToRgbaString(Color.BLUE))
-                    .withCircleOpacity(0.2f)
-                    .withCircleStrokeColor(ColorUtils.colorToRgbaString(Color.BLUE))
-                    .withCircleStrokeWidth(2f)
-                    .withCircleStrokeOpacity(0.6f)
-                    .withLatLng(currentWorkingCoordinate)
-
-                circleManager?.deleteAll()
-                circleManager?.create(circleOptions)
-            }
+    @SuppressLint("ObsoleteSdkInt")
+    private fun setStatusBarColor() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            window.statusBarColor = resources.getColor(R.color.blue_primary, this.theme)
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            window.statusBarColor =
+                resources.getColor(R.color.blue_primary)
         }
     }
 
@@ -252,13 +204,42 @@ class LocationViewActivity : AppCompatActivity(), PermissionsListener, OnMapRead
         permissionsManager.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 
-    @SuppressLint("ObsoleteSdkInt")
-    private fun setStatusBarColor() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            window.statusBarColor = resources.getColor(R.color.blue_primary, this.theme)
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            window.statusBarColor =
-                resources.getColor(R.color.blue_primary)
+    override fun onMapReady(mapboxMap: MapboxMap) {
+        map = mapboxMap
+        map.setStyle(Style.MAPBOX_STREETS) {
+            loadedStyleMap = it
+            // Map is set up and the style has loaded. Now you can add data or make other map adjustments
+            binding.spinKit.visibility = View.GONE
+
+            // Map UI settings
+            run {
+                val uiSettings = map.uiSettings
+                uiSettings.setAllGesturesEnabled(false)
+            }
+
+            // Show Device
+            run {
+                enableLocationComponent(it)
+            }
+
+            // Add Circle Area to working location
+            run {
+                if (circleManager == null) {
+                    circleManager = CircleManager(mapView!!, map, loadedStyleMap)
+                }
+
+                val circleOptions = CircleOptions()
+                    .withCircleRadius(100f)
+                    .withCircleColor(ColorUtils.colorToRgbaString(Color.BLUE))
+                    .withCircleOpacity(0.2f)
+                    .withCircleStrokeColor(ColorUtils.colorToRgbaString(Color.BLUE))
+                    .withCircleStrokeWidth(2f)
+                    .withCircleStrokeOpacity(0.6f)
+                    .withLatLng(currentWorkingCoordinate)
+
+                circleManager?.deleteAll()
+                circleManager?.create(circleOptions)
+            }
         }
     }
 

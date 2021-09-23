@@ -15,9 +15,11 @@ import com.chessporg.local_attendance_app.utils.helper.MapHelper.ANIMATE_CAMERA_
 import com.chessporg.local_attendance_app.utils.helper.MapHelper.INDONESIA_ZOOM_VALUE
 import com.chessporg.local_attendance_app.utils.helper.MapHelper.ZOOM_VALUE
 import com.chessporg.local_attendance_app.utils.helper.MapHelper.firstSetLocation
+import com.mapbox.geojson.Feature
+import com.mapbox.geojson.LineString
+import com.mapbox.geojson.Point
+import com.mapbox.geojson.Polygon
 import com.mapbox.mapboxsdk.Mapbox
-import com.mapbox.mapboxsdk.annotations.Marker
-import com.mapbox.mapboxsdk.annotations.MarkerOptions
 import com.mapbox.mapboxsdk.camera.CameraPosition
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory
 import com.mapbox.mapboxsdk.geometry.LatLng
@@ -25,28 +27,44 @@ import com.mapbox.mapboxsdk.maps.MapView
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
 import com.mapbox.mapboxsdk.maps.Style
-import com.mapbox.mapboxsdk.plugins.annotation.CircleManager
-import com.mapbox.mapboxsdk.plugins.annotation.CircleOptions
 import com.mapbox.mapboxsdk.plugins.places.picker.PlacePicker
 import com.mapbox.mapboxsdk.plugins.places.picker.model.PlacePickerOptions
-import com.mapbox.mapboxsdk.style.layers.CircleLayer
-import com.mapbox.mapboxsdk.utils.ColorUtils
+import com.mapbox.mapboxsdk.style.layers.FillLayer
+import com.mapbox.mapboxsdk.style.layers.PropertyFactory.*
+import com.mapbox.mapboxsdk.style.layers.SymbolLayer
+import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
+import com.mapbox.mapboxsdk.utils.BitmapUtils
+import com.mapbox.turf.TurfConstants
+import com.mapbox.turf.TurfMeta
+import com.mapbox.turf.TurfTransformation
 
 class PlacePickerActivity : AppCompatActivity(), OnMapReadyCallback {
 
     companion object {
         private const val PLACE_SELECTION_REQUEST_CODE = 56789
+        private const val TURF_CALCULATION_FILL_LAYER_GEOJSON_SOURCE_ID =
+            "TURF_CALCULATION_FILL_LAYER_GEOJSON_SOURCE_ID"
+        private const val TURF_CALCULATION_FILL_LAYER_ID = "TURF_CALCULATION_FILL_LAYER_ID"
+        private const val CIRCLE_CENTER_SOURCE_ID = "CIRCLE_CENTER_SOURCE_ID"
+        private const val CIRCLE_CENTER_ICON_ID = "CIRCLE_CENTER_ICON_ID"
+        private const val CIRCLE_CENTER_LAYER_ID = "CIRCLE_CENTER_LAYER_ID"
     }
 
     private lateinit var binding: ActivityPlacePickerBinding
-
     private var mapView: MapView? = null
     private lateinit var map: MapboxMap
-    private var marker: Marker? = null
+    private var isMarkerDrawnSecondTime = false
     private lateinit var loadedStyleMap: Style
-    private var circleManager: CircleManager? = null
     private var currentPickedLocationLatLng = LatLng(-0.23857894191359583, 119.64293910793991)
+    private var currentPickedLocationPoint = Point.fromLngLat(
+        currentPickedLocationLatLng.longitude,
+        currentPickedLocationLatLng.latitude
+    )
     private var currentPickedLocationName = "None"
+
+    private var circleUnit = TurfConstants.UNIT_METERS
+    private var circleSteps = 180
+    private var circleRadius = 100.0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -85,8 +103,8 @@ class PlacePickerActivity : AppCompatActivity(), OnMapReadyCallback {
                     PlacePickerOptions.builder()
                         .statingCameraPosition(
                             CameraPosition.Builder()
-                                .target(if(marker!=null) currentPickedLocationLatLng else firstSetLocation)
-                                .zoom(if(marker!=null) ZOOM_VALUE else INDONESIA_ZOOM_VALUE)
+                                .target(if (isMarkerDrawnSecondTime) currentPickedLocationLatLng else firstSetLocation)
+                                .zoom(if (isMarkerDrawnSecondTime) ZOOM_VALUE else INDONESIA_ZOOM_VALUE)
                                 .build()
                         )
                         .build()
@@ -110,59 +128,91 @@ class PlacePickerActivity : AppCompatActivity(), OnMapReadyCallback {
                 currentWorkingPlaceName = currentPickedLocationName
             }
 
-            // Add Marker
-            run {
-                if (marker != null) {
-                    map.removeMarker(marker!!)
-                }
-                marker = map.addMarker(
-                    MarkerOptions()
-                        .position(MapHelper.currentWorkingCoordinate)
-                        .title("Working Location")
-                )
-            }
-
-            // Add Circle Area to working location
-            run {
-                if (circleManager == null) {
-                    circleManager = CircleManager(mapView!!, map, loadedStyleMap)
-                }
-
-                val circleOptions = CircleOptions()
-                    .withCircleRadius(100f)
-                    .withCircleColor(ColorUtils.colorToRgbaString(Color.BLUE))
-                    .withCircleOpacity(0.2f)
-                    .withCircleStrokeColor(ColorUtils.colorToRgbaString(Color.BLUE))
-                    .withCircleStrokeWidth(2f)
-                    .withCircleStrokeOpacity(0.6f)
-                    .withLatLng(MapHelper.currentWorkingCoordinate)
-
-                circleManager?.deleteAll()
-                circleManager?.create(circleOptions)
-            }
-
+            isMarkerDrawnSecondTime = true
             mapView?.getMapAsync(this)
         }
     }
 
+    @SuppressLint("UseCompatLoadingForDrawables")
     override fun onMapReady(mapboxMap: MapboxMap) {
         map = mapboxMap
-        map.setStyle(Style.MAPBOX_STREETS) {
-            loadedStyleMap = it
-            // Map UI settings
-            run {
-                val uiSettings = mapboxMap.uiSettings
-                uiSettings.setAllGesturesEnabled(false)
-            }
+        map
+            .setStyle(
+                Style.Builder().fromUri(Style.MAPBOX_STREETS)
+                    .withImage(
+                        CIRCLE_CENTER_ICON_ID, BitmapUtils.getBitmapFromDrawable(
+                            resources.getDrawable(R.drawable.mapbox_marker_icon_default, this.theme)
+                            /*
+                            if (isMarkerDrawnSecondTime) resources.getDrawable(
+                                R.drawable.mapbox_marker_icon_default,
+                                this.theme
+                            )
+                            else resources.getDrawable(R.drawable.blank, this.theme)
 
-            // Animate Camera
-            run {
-                val position = CameraPosition.Builder()
-                    .target(currentPickedLocationLatLng)
-                    .zoom(if(marker!= null) ZOOM_VALUE else INDONESIA_ZOOM_VALUE)
-                    .build()
-                map.animateCamera(CameraUpdateFactory.newCameraPosition(position), ANIMATE_CAMERA_DURATION)
-                setLocationInformation()
+                             */
+                        )!!
+                    )
+                    .withSource(
+                        GeoJsonSource(
+                            CIRCLE_CENTER_SOURCE_ID,
+                            Feature.fromGeometry(currentPickedLocationPoint)
+                        )
+                    )
+                    .withSource(GeoJsonSource(TURF_CALCULATION_FILL_LAYER_GEOJSON_SOURCE_ID))
+                    .withLayer(
+                        SymbolLayer(CIRCLE_CENTER_LAYER_ID, CIRCLE_CENTER_SOURCE_ID)
+                            .withProperties(
+                                iconImage(CIRCLE_CENTER_ICON_ID),
+                                iconIgnorePlacement(true),
+                                iconAllowOverlap(true),
+                                iconOffset(
+                                    arrayOf(0f, -4f)
+                                )
+                            )
+                    )
+            ) {
+                loadedStyleMap = it
+                // Map UI settings
+                run {
+                    val uiSettings = mapboxMap.uiSettings
+                    uiSettings.setAllGesturesEnabled(false)
+                }
+
+                // Animate Camera
+                run {
+                    val position = CameraPosition.Builder()
+                        .target(currentPickedLocationLatLng)
+                        .zoom(if (isMarkerDrawnSecondTime) ZOOM_VALUE else INDONESIA_ZOOM_VALUE)
+                        .build()
+                    map.animateCamera(
+                        CameraUpdateFactory.newCameraPosition(position),
+                        ANIMATE_CAMERA_DURATION
+                    )
+                    setLocationInformation()
+                }
+
+                initPolygonCircleFillLayer()
+                currentPickedLocationPoint = Point.fromLngLat(
+                    currentPickedLocationLatLng.longitude,
+                    currentPickedLocationLatLng.latitude
+                )
+                drawPolygonCircle(currentPickedLocationPoint)
+            }
+    }
+
+    private fun drawPolygonCircle(currentPickedLocationPoint: Point) {
+        map.getStyle {
+            val polygonArea =
+                getTurfPolygon(currentPickedLocationPoint, circleRadius, circleSteps, circleUnit)
+            val polygonCircleSource = it.getSourceAs<GeoJsonSource>(
+                TURF_CALCULATION_FILL_LAYER_GEOJSON_SOURCE_ID
+            )
+            if (polygonCircleSource != null) {
+                polygonCircleSource.setGeoJson(
+                    Polygon.fromOuterInner(
+                        LineString.fromLngLats(TurfMeta.coordAll(polygonArea, false))
+                    )
+                )
             }
         }
     }
@@ -171,8 +221,8 @@ class PlacePickerActivity : AppCompatActivity(), OnMapReadyCallback {
         binding.apply {
             tvCoordniate.text = getString(
                 R.string.latitude_s_longitude_s,
-                if(marker != null) currentPickedLocationLatLng.latitude.toString() else 0.0,
-                if(marker != null) currentPickedLocationLatLng.longitude.toString() else 0.0
+                if (isMarkerDrawnSecondTime) currentPickedLocationLatLng.latitude.toString() else 0.0,
+                if (isMarkerDrawnSecondTime) currentPickedLocationLatLng.longitude.toString() else 0.0
             )
             tvLocationName.text = currentPickedLocationName
         }
@@ -185,6 +235,35 @@ class PlacePickerActivity : AppCompatActivity(), OnMapReadyCallback {
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             window.statusBarColor =
                 resources.getColor(R.color.blue_primary)
+        }
+    }
+
+    private fun getTurfPolygon(
+        currentPickedLocationPoint: Point,
+        circleRadius: Double,
+        circleSteps: Int,
+        circleUnit: String
+    ): Polygon {
+        return TurfTransformation.circle(
+            currentPickedLocationPoint,
+            circleRadius,
+            circleSteps,
+            circleUnit
+        )
+    }
+
+    private fun initPolygonCircleFillLayer() {
+        map.getStyle {
+            val fillLayer = FillLayer(
+                TURF_CALCULATION_FILL_LAYER_ID,
+                TURF_CALCULATION_FILL_LAYER_GEOJSON_SOURCE_ID
+            )
+            fillLayer.setProperties(
+                fillColor(Color.parseColor("#FF6C63FF")),
+                fillOutlineColor(Color.parseColor("#FF6C63FF")),
+                fillOpacity(0.3f)
+            )
+            it.addLayerBelow(fillLayer, CIRCLE_CENTER_LAYER_ID)
         }
     }
 

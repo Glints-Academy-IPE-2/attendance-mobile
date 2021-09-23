@@ -64,6 +64,9 @@ dependencies {
     // Mapbox Annotations depedencies
     implementation 'com.mapbox.mapboxsdk:mapbox-android-plugin-annotation-v9:0.9.0'
 
+    // Mapbox Turf dependencies
+    implementation 'com.mapbox.mapboxsdk:mapbox-sdk-turf:5.8.0'
+
     // SpinKit dependencies
     implementation 'com.github.ybq:Android-SpinKit:1.4.0'
 
