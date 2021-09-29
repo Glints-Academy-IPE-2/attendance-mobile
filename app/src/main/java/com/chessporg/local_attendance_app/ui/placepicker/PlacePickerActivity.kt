@@ -10,6 +10,11 @@ import androidx.appcompat.app.AppCompatActivity
 import com.chessporg.local_attendance_app.R
 import com.chessporg.local_attendance_app.databinding.ActivityPlacePickerBinding
 import com.chessporg.local_attendance_app.ui.home.HomeActivity
+import com.chessporg.local_attendance_app.utils.helper.GeoSourceHelper.CIRCLE_CENTER_ICON_ID
+import com.chessporg.local_attendance_app.utils.helper.GeoSourceHelper.CIRCLE_CENTER_LAYER_ID
+import com.chessporg.local_attendance_app.utils.helper.GeoSourceHelper.CIRCLE_CENTER_SOURCE_ID
+import com.chessporg.local_attendance_app.utils.helper.GeoSourceHelper.TURF_CALCULATION_FILL_LAYER_GEOJSON_SOURCE_ID
+import com.chessporg.local_attendance_app.utils.helper.GeoSourceHelper.TURF_CALCULATION_FILL_LAYER_ID
 import com.chessporg.local_attendance_app.utils.helper.MapHelper
 import com.chessporg.local_attendance_app.utils.helper.MapHelper.ANIMATE_CAMERA_DURATION
 import com.chessporg.local_attendance_app.utils.helper.MapHelper.INDONESIA_ZOOM_VALUE
@@ -42,12 +47,6 @@ class PlacePickerActivity : AppCompatActivity(), OnMapReadyCallback {
 
     companion object {
         private const val PLACE_SELECTION_REQUEST_CODE = 56789
-        private const val TURF_CALCULATION_FILL_LAYER_GEOJSON_SOURCE_ID =
-            "TURF_CALCULATION_FILL_LAYER_GEOJSON_SOURCE_ID"
-        private const val TURF_CALCULATION_FILL_LAYER_ID = "TURF_CALCULATION_FILL_LAYER_ID"
-        private const val CIRCLE_CENTER_SOURCE_ID = "CIRCLE_CENTER_SOURCE_ID"
-        private const val CIRCLE_CENTER_ICON_ID = "CIRCLE_CENTER_ICON_ID"
-        private const val CIRCLE_CENTER_LAYER_ID = "CIRCLE_CENTER_LAYER_ID"
     }
 
     private lateinit var binding: ActivityPlacePickerBinding
@@ -207,13 +206,11 @@ class PlacePickerActivity : AppCompatActivity(), OnMapReadyCallback {
             val polygonCircleSource = it.getSourceAs<GeoJsonSource>(
                 TURF_CALCULATION_FILL_LAYER_GEOJSON_SOURCE_ID
             )
-            if (polygonCircleSource != null) {
-                polygonCircleSource.setGeoJson(
-                    Polygon.fromOuterInner(
-                        LineString.fromLngLats(TurfMeta.coordAll(polygonArea, false))
-                    )
+            polygonCircleSource?.setGeoJson(
+                Polygon.fromOuterInner(
+                    LineString.fromLngLats(TurfMeta.coordAll(polygonArea, false))
                 )
-            }
+            )
         }
     }
 

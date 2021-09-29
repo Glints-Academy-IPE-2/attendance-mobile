@@ -3,6 +3,7 @@ package com.chessporg.local_attendance_app
 import org.junit.Test
 
 import org.junit.Assert.*
+import java.util.*
 
 /**
  * Example local unit test, which will execute on the development machine (host).
@@ -11,7 +12,9 @@ import org.junit.Assert.*
  */
 class ExampleUnitTest {
     @Test
-    fun addition_isCorrect() {
-        assertEquals(4, 2 + 2)
+    fun checkDateClass() {
+        val date = Date()
+        print(date.toString())
+        print(date.toString().subSequence(0,3))
     }
 }
