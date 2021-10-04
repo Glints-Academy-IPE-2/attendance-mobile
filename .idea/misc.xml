@@ -20,10 +20,14 @@
         <entry key="..\:/Projects/AndroidStudio/localattendance_app/app/src/main/res/drawable/ic_round_logout_24.xml" value="0.2916666666666667" />
         <entry key="..\:/Projects/AndroidStudio/localattendance_app/app/src/main/res/drawable/location_view_bottom_container.xml" value="0.2916666666666667" />
         <entry key="..\:/Projects/AndroidStudio/localattendance_app/app/src/main/res/drawable/today_attendance_bg.xml" value="0.2916666666666667" />
+        <entry key="..\:/Projects/AndroidStudio/localattendance_app/app/src/main/res/font/alegreyasans.xml" value="0.1" />
+        <entry key="..\:/Projects/AndroidStudio/localattendance_app/app/src/main/res/layout/activity_forgot_pass.xml" value="0.13861386138613863" />
         <entry key="..\:/Projects/AndroidStudio/localattendance_app/app/src/main/res/layout/activity_home.xml" value="0.33" />
         <entry key="..\:/Projects/AndroidStudio/localattendance_app/app/src/main/res/layout/activity_location_view.xml" value="0.25" />
+        <entry key="..\:/Projects/AndroidStudio/localattendance_app/app/src/main/res/layout/activity_login.xml" value="0.25" />
         <entry key="..\:/Projects/AndroidStudio/localattendance_app/app/src/main/res/layout/activity_main.xml" value="0.2755208333333333" />
         <entry key="..\:/Projects/AndroidStudio/localattendance_app/app/src/main/res/layout/activity_place_picker.xml" value="0.33" />
+        <entry key="..\:/Projects/AndroidStudio/localattendance_app/app/src/main/res/layout/activity_register.xml" value="0.12639311043566362" />
         <entry key="..\:/Projects/AndroidStudio/localattendance_app/app/src/main/res/layout/item_daily_attendence.xml" value="0.33" />
       </map>
     </option>
