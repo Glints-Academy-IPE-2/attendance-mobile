@@ -2,11 +2,15 @@ package com.chessporg.local_attendance_app.ui.placepicker
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
+import android.util.TypedValue
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.updateLayoutParams
 import com.chessporg.local_attendance_app.R
 import com.chessporg.local_attendance_app.databinding.ActivityPlacePickerBinding
 import com.chessporg.local_attendance_app.ui.home.HomeActivity
@@ -15,7 +19,6 @@ import com.chessporg.local_attendance_app.utils.helper.GeoSourceHelper.CIRCLE_CE
 import com.chessporg.local_attendance_app.utils.helper.GeoSourceHelper.CIRCLE_CENTER_SOURCE_ID
 import com.chessporg.local_attendance_app.utils.helper.GeoSourceHelper.TURF_CALCULATION_FILL_LAYER_GEOJSON_SOURCE_ID
 import com.chessporg.local_attendance_app.utils.helper.GeoSourceHelper.TURF_CALCULATION_FILL_LAYER_ID
-import com.chessporg.local_attendance_app.utils.helper.MapHelper
 import com.chessporg.local_attendance_app.utils.helper.MapHelper.ANIMATE_CAMERA_DURATION
 import com.chessporg.local_attendance_app.utils.helper.MapHelper.INDONESIA_ZOOM_VALUE
 import com.chessporg.local_attendance_app.utils.helper.MapHelper.ZOOM_VALUE
@@ -38,10 +41,10 @@ import com.mapbox.mapboxsdk.style.layers.FillLayer
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory.*
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
-import com.mapbox.mapboxsdk.utils.BitmapUtils
 import com.mapbox.turf.TurfConstants
 import com.mapbox.turf.TurfMeta
 import com.mapbox.turf.TurfTransformation
+import java.util.*
 
 class PlacePickerActivity : AppCompatActivity(), OnMapReadyCallback {
 
@@ -52,7 +55,7 @@ class PlacePickerActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var binding: ActivityPlacePickerBinding
     private var mapView: MapView? = null
     private lateinit var map: MapboxMap
-    private var isMarkerDrawnSecondTime = false
+    private var isCircleZoneDrawn = false
     private lateinit var loadedStyleMap: Style
     private var currentPickedLocationLatLng = LatLng(-0.23857894191359583, 119.64293910793991)
     private var currentPickedLocationPoint = Point.fromLngLat(
@@ -77,6 +80,7 @@ class PlacePickerActivity : AppCompatActivity(), OnMapReadyCallback {
         setMapView(savedInstanceState)
         setChangeLocationButton()
         setSubmitLocationButton()
+        showSubmitButton(false)
     }
 
     private fun setSubmitLocationButton() {
@@ -102,8 +106,8 @@ class PlacePickerActivity : AppCompatActivity(), OnMapReadyCallback {
                     PlacePickerOptions.builder()
                         .statingCameraPosition(
                             CameraPosition.Builder()
-                                .target(if (isMarkerDrawnSecondTime) currentPickedLocationLatLng else firstSetLocation)
-                                .zoom(if (isMarkerDrawnSecondTime) ZOOM_VALUE else INDONESIA_ZOOM_VALUE)
+                                .target(if (isCircleZoneDrawn) currentPickedLocationLatLng else firstSetLocation)
+                                .zoom(if (isCircleZoneDrawn) ZOOM_VALUE else INDONESIA_ZOOM_VALUE)
                                 .build()
                         )
                         .build()
@@ -122,13 +126,26 @@ class PlacePickerActivity : AppCompatActivity(), OnMapReadyCallback {
             currentPickedLocationName = carmenFeature?.placeName().toString()
             currentPickedLocationLatLng = lastCameraPosition.target
 
-            MapHelper.apply {
-                currentWorkingCoordinate = currentPickedLocationLatLng
-                currentWorkingPlaceName = currentPickedLocationName
+            val sharedPref = getSharedPreferences(getString(R.string.user_data), Context.MODE_PRIVATE)
+            with(sharedPref.edit()) {
+                putFloat(getString(R.string.user_work_place_latitude),
+                    currentPickedLocationLatLng.latitude.toFloat()
+                )
+                putFloat(getString(R.string.user_work_place_longitude),
+                    currentPickedLocationLatLng.longitude.toFloat()
+                )
+                putString(getString(R.string.user_work_place_name),
+                    currentPickedLocationName
+                )
+                putString(getString(R.string.user_today_attendance),
+                    Date().toString().substring(4, 10)
+                )
+                apply()
             }
 
-            isMarkerDrawnSecondTime = true
+            isCircleZoneDrawn = true
             mapView?.getMapAsync(this)
+            showSubmitButton(true)
         }
     }
 
@@ -138,19 +155,13 @@ class PlacePickerActivity : AppCompatActivity(), OnMapReadyCallback {
         map
             .setStyle(
                 Style.Builder().fromUri(Style.MAPBOX_STREETS)
+                    /*
                     .withImage(
                         CIRCLE_CENTER_ICON_ID, BitmapUtils.getBitmapFromDrawable(
                             resources.getDrawable(R.drawable.mapbox_marker_icon_default, this.theme)
-                            /*
-                            if (isMarkerDrawnSecondTime) resources.getDrawable(
-                                R.drawable.mapbox_marker_icon_default,
-                                this.theme
-                            )
-                            else resources.getDrawable(R.drawable.blank, this.theme)
-
-                             */
                         )!!
                     )
+                     */
                     .withSource(
                         GeoJsonSource(
                             CIRCLE_CENTER_SOURCE_ID,
@@ -181,7 +192,7 @@ class PlacePickerActivity : AppCompatActivity(), OnMapReadyCallback {
                 run {
                     val position = CameraPosition.Builder()
                         .target(currentPickedLocationLatLng)
-                        .zoom(if (isMarkerDrawnSecondTime) ZOOM_VALUE else INDONESIA_ZOOM_VALUE)
+                        .zoom(if (isCircleZoneDrawn) ZOOM_VALUE else INDONESIA_ZOOM_VALUE)
                         .build()
                     map.animateCamera(
                         CameraUpdateFactory.newCameraPosition(position),
@@ -218,8 +229,8 @@ class PlacePickerActivity : AppCompatActivity(), OnMapReadyCallback {
         binding.apply {
             tvCoordniate.text = getString(
                 R.string.latitude_s_longitude_s,
-                if (isMarkerDrawnSecondTime) currentPickedLocationLatLng.latitude.toString() else 0.0,
-                if (isMarkerDrawnSecondTime) currentPickedLocationLatLng.longitude.toString() else 0.0
+                if (isCircleZoneDrawn) currentPickedLocationLatLng.latitude.toString() else 0.0,
+                if (isCircleZoneDrawn) currentPickedLocationLatLng.longitude.toString() else 0.0
             )
             tvLocationName.text = currentPickedLocationName
         }
@@ -261,6 +272,26 @@ class PlacePickerActivity : AppCompatActivity(), OnMapReadyCallback {
                 fillOpacity(0.3f)
             )
             it.addLayerBelow(fillLayer, CIRCLE_CENTER_LAYER_ID)
+        }
+    }
+
+    private fun showSubmitButton(bool: Boolean) {
+        binding.apply {
+            if (bool) {
+                val pixels = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 240f, resources.displayMetrics)
+                vBottomContainer.updateLayoutParams {
+                    height = pixels.toInt()
+                }
+                cvSubmitLocationButton.visibility = View.VISIBLE
+            }
+
+            else {
+                val pixels = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 180f, resources.displayMetrics)
+                vBottomContainer.updateLayoutParams {
+                    height = pixels.toInt()
+                }
+                cvSubmitLocationButton.visibility = View.GONE
+            }
         }
     }
 

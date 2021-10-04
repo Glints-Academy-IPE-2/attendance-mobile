@@ -1,24 +1,28 @@
 package com.chessporg.local_attendance_app.ui.home
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.SharedPreferences
 import android.location.LocationManager
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.bumptech.glide.Glide
 import com.chessporg.local_attendance_app.R
-import com.chessporg.local_attendance_app.data.model.AttendanceResponse
 import com.chessporg.local_attendance_app.databinding.ActivityHomeBinding
 import com.chessporg.local_attendance_app.ui.locationview.LocationViewActivity
 import com.chessporg.local_attendance_app.utils.DummyData
 import com.chessporg.local_attendance_app.utils.GPSBroadcastReceiver
 import com.chessporg.local_attendance_app.utils.helper.DateHelper
 import com.chessporg.local_attendance_app.utils.helper.GPSHelper
+import timber.log.Timber
 import java.util.*
 
 class HomeActivity : AppCompatActivity() {
@@ -32,6 +36,7 @@ class HomeActivity : AppCompatActivity() {
     private lateinit var locationManager: LocationManager
     private var gpsBroadcastReceiver = GPSBroadcastReceiver()
     private lateinit var viewModel: HomeViewModel
+    private lateinit var sharedPref: SharedPreferences
 
     private var month =
         DateHelper.convertThreeLetterMonthToFullMonthName(
@@ -49,9 +54,11 @@ class HomeActivity : AppCompatActivity() {
 
         viewModel = ViewModelProvider(this, ViewModelProvider.NewInstanceFactory())[HomeViewModel::class.java]
 
+        sharedPref = getSharedPreferences(getString(R.string.user_data), Context.MODE_PRIVATE)
+
         if (!gpsBroadcastReceiver.isOrderedBroadcast) {
             setGPSBroadcastReceiver()
-            Log.d(TAG, "Register GPSBroadcastReceiver: start ...")
+            Timber.tag(TAG).d("Register GPSBroadcastReceiver: start ...")
         }
 
         setLocationManager()
@@ -62,7 +69,7 @@ class HomeActivity : AppCompatActivity() {
         setStatusBarColor()
 
         if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-            Log.d(TAG, "First Alert")
+            Timber.tag(TAG).d("First Alert")
             GPSHelper.showDisabledGPSAlert(this)
         }
     }
@@ -110,14 +117,10 @@ class HomeActivity : AppCompatActivity() {
                 startActivity(intent)
             }
 
-            viewModel
-                .getTodayAttendance(month, userId)
-                .observe(this@HomeActivity, {
-                    val date = it.date.toString()
-                    tvDateDayNumber.text = date.subSequence(8, 10)
-                    tvDateDayText.text = date.subSequence(0, 3)
-                    tvDateMonth.text = date.subSequence(4, 7)
-            })
+            val date = Date().toString()
+            tvDateDayNumber.text = date.subSequence(8, 10)
+            tvDateDayText.text = date.subSequence(0, 3)
+            tvDateMonth.text = date.subSequence(4, 7)
         }
     }
 
@@ -157,6 +160,63 @@ class HomeActivity : AppCompatActivity() {
         }
         else {
             binding.cvLoading.visibility = View.VISIBLE
+        }
+    }
+
+    @SuppressLint("CheckResult")
+    override fun onResume() {
+        super.onResume()
+        sharedPref = getSharedPreferences(getString(R.string.user_data), Context.MODE_PRIVATE)
+
+        val todayAttendance = sharedPref.getString(getString(R.string.user_today_attendance), "")
+
+        if (todayAttendance != Date().toString().substring(4, 10)) {
+            with(sharedPref.edit()) {
+                putString(getString(R.string.user_today_attendance), Date().toString().substring(4, 10))
+                putString(getString(R.string.user_today_checkin), "")
+                putString(getString(R.string.user_today_checkout), "")
+                apply()
+            }
+        }
+
+        val startWorking = sharedPref.getString(getString(R.string.user_today_checkin), "")
+        val stopWorking = sharedPref.getString(getString(R.string.user_today_checkout), "")
+
+        when {
+            startWorking == "" -> {
+                binding.apply {
+                    tvTitleAttendance.text = getString(R.string.start_working_to_check_in)
+                    tvAttendance.text = getString(R.string.start)
+
+                    Glide
+                        .with(this@HomeActivity)
+                        .load(R.drawable.ic_round_login_24)
+                        .into(ivAttendance)
+
+                }
+            }
+            stopWorking == "" -> {
+                binding.apply {
+                    tvTitleAttendance.text = getString(R.string.finish_working_to_check_out)
+                    tvAttendance.text = getString(R.string.finish)
+
+                    Glide
+                        .with(this@HomeActivity)
+                        .load(R.drawable.ic_round_logout_24)
+                        .into(ivAttendance)
+                }
+            }
+            else -> {
+                binding.apply {
+                    tvTitleAttendance.text = getString(R.string.good_job_for_today)
+                    tvAttendance.text = getString(R.string.done)
+
+                    Glide
+                        .with(this@HomeActivity)
+                        .load(R.drawable.ic_round_check_24)
+                        .into(ivAttendance)
+                }
+            }
         }
     }
 

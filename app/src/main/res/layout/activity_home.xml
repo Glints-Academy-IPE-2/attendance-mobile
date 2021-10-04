@@ -232,42 +232,41 @@
         app:layout_constraintTop_toBottomOf="@id/tv_date_day_text" />
 
     <TextView
-        android:id="@+id/tv_finish_working"
+        android:id="@+id/tv_title_attendance"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
         android:layout_marginTop="4dp"
         android:elevation="20dp"
         android:fontFamily="@font/alegreyasans_bold"
-        android:text="@string/finish_working_to_log_out"
+        android:text="@string/start_working_to_check_in"
         android:textColor="@color/black"
         android:textSize="12sp"
         app:layout_constraintStart_toEndOf="@id/cv_date_container"
         app:layout_constraintTop_toTopOf="@id/cv_date_container" />
 
     <ImageView
-        android:id="@+id/iv_stop_working"
+        android:id="@+id/iv_attendance"
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:layout_marginTop="8dp"
-        android:background="@drawable/ic_round_logout_24"
         android:backgroundTint="@color/black"
         android:elevation="20dp"
-        android:scaleX="-1"
-        app:layout_constraintStart_toStartOf="@id/tv_finish_working"
-        app:layout_constraintTop_toBottomOf="@id/tv_finish_working"
+        app:layout_constraintStart_toStartOf="@id/tv_title_attendance"
+        app:layout_constraintTop_toBottomOf="@id/tv_title_attendance"
         tools:ignore="ContentDescription" />
 
     <TextView
+        android:id="@+id/tv_attendance"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="6dp"
         android:elevation="20dp"
         android:fontFamily="@font/alegreyasans_bold"
-        android:text="@string/stop"
+        android:text="@string/start"
         android:textColor="#FF041549"
         android:textSize="24sp"
-        app:layout_constraintBottom_toBottomOf="@id/iv_stop_working"
-        app:layout_constraintStart_toEndOf="@id/iv_stop_working"
-        app:layout_constraintTop_toTopOf="@id/iv_stop_working" />
+        app:layout_constraintBottom_toBottomOf="@id/iv_attendance"
+        app:layout_constraintStart_toEndOf="@id/iv_attendance"
+        app:layout_constraintTop_toTopOf="@id/iv_attendance" />
 </androidx.constraintlayout.widget.ConstraintLayout>

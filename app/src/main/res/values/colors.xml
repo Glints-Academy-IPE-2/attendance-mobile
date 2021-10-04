@@ -13,4 +13,5 @@
     <color name="locationview_starthour_color">#6DEC62</color>
     <color name="darkpurple_text_color">#FF041549</color>
     <color name="blank_background_color">#DDD2D2</color>
+    <color name="disable_background_color">#AFAFAF</color>
 </resources>

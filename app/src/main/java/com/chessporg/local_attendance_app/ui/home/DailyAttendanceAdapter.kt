@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.chessporg.local_attendance_app.data.model.Attendance
 import com.chessporg.local_attendance_app.databinding.ItemDailyAttendenceBinding
+import timber.log.Timber
 
 class DailyAttendanceAdapter : RecyclerView.Adapter<DailyAttendanceAdapter.CustomViewHolder>() {
 
@@ -25,6 +26,7 @@ class DailyAttendanceAdapter : RecyclerView.Adapter<DailyAttendanceAdapter.Custo
                 tvDateDayNumber.text = date.subSequence(8, 10)
                 tvStartHour.text = "${checkInTime.subSequence(11, 16)} WIB"
                 tvEndHour.text = "${checkOutTime.subSequence(11, 16)} WIB"
+                tvTotalHour.text = "00:00"
             }
         }
     }
@@ -50,7 +52,7 @@ class DailyAttendanceAdapter : RecyclerView.Adapter<DailyAttendanceAdapter.Custo
 
     override fun onBindViewHolder(holder: CustomViewHolder, position: Int) {
         holder.bind(attendanceList[position])
-        Log.d("test attendance property", attendanceList[position].toString())
+        Timber.tag("Attendance Property").d(attendanceList[position].toString())
     }
 
     override fun getItemCount(): Int {

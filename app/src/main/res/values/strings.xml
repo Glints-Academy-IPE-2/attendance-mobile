@@ -11,15 +11,27 @@
     <string name="end">End</string>
     <string name="total">Total</string>
     <string name="total_hour">-- : --</string>
-    <string name="finish_working_to_log_out">Finish working to log out</string>
+    <string name="start_working_to_check_in">Start working to check in</string>
+    <string name="finish_working_to_check_out">Finish working to check out</string>
     <string name="working_location">Working Location</string>
     <string name="latitude_s_longitude_s">Latitude: %1$s || Longitude: %2$s</string>
     <string name="telkom_university_jl_telekomunikasi_no_1_terusan_buahbatu_bojongsoang_sukapura_kec_dayeuhkolot_bandung_jawa_barat_40257">Telkom University, Jl. Telekomunikasi No. 1,Terusan Buahbatu - Bojongsoang, Sukapura, Kec. Dayeuhkolot, Bandung, Jawa Barat 40257</string>
+    <string name="start_working">Start Working</string>
     <string name="finish_working">Finish Working</string>
-    <string name="stop">Stop</string>
+    <string name="finish">Finish</string>
     <string name="starting_location">Starting Location</string>
     <string name="location_used_to_start_working">Location Used To Start Working</string>
     <string name="submit_location">Submit Location</string>
     <string name="change">Change</string>
     <string name="none">None</string>
+
+    <string name="user_data">PREFERENCE_USER_TOKEN</string>
+    <string name="user_today_attendance">TODAY_ATTENDANCE_TOKEN</string>
+    <string name="user_today_checkin">TODAY_CHECK_IN_TOKEN</string>
+    <string name="user_today_checkout">TODAY_CHECK_OUT_TOKEN</string>
+    <string name="user_work_place_latitude">WORK_PLACE_LATITUDE</string>
+    <string name="user_work_place_longitude">WORK_PLACE_LONGITUDE</string>
+    <string name="user_work_place_name">WORK_PLACE_NAME</string>
+    <string name="good_job_for_today">Good job for today, Have a rest !</string>
+    <string name="done">Done</string>
 </resources>

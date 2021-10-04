@@ -1,20 +1,22 @@
 package com.chessporg.local_attendance_app.ui.locationview
 
 import android.annotation.SuppressLint
-import android.graphics.Bitmap
+import android.content.Context
+import android.content.SharedPreferences
 import android.graphics.Color
 import android.location.Location
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
+import android.util.TypedValue
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
+import androidx.core.view.updateLayoutParams
 import com.chessporg.local_attendance_app.R
 import com.chessporg.local_attendance_app.databinding.ActivityLocationViewBinding
-import com.chessporg.local_attendance_app.ui.placepicker.PlacePickerActivity
 import com.chessporg.local_attendance_app.utils.helper.GeoSourceHelper.CIRCLE_CENTER_ICON_ID
 import com.chessporg.local_attendance_app.utils.helper.GeoSourceHelper.CIRCLE_CENTER_LAYER_ID
 import com.chessporg.local_attendance_app.utils.helper.GeoSourceHelper.CIRCLE_CENTER_SOURCE_ID
@@ -23,7 +25,6 @@ import com.chessporg.local_attendance_app.utils.helper.GeoSourceHelper.TURF_CALC
 import com.chessporg.local_attendance_app.utils.helper.MapHelper
 import com.chessporg.local_attendance_app.utils.helper.MapHelper.DEFAULT_INTERVAL_IN_MILLISECONDS
 import com.chessporg.local_attendance_app.utils.helper.MapHelper.DEFAULT_MAX_WAIT_TIME
-import com.chessporg.local_attendance_app.utils.helper.MapHelper.currentWorkingCoordinate
 import com.mapbox.android.core.location.*
 import com.mapbox.android.core.permissions.PermissionsListener
 import com.mapbox.android.core.permissions.PermissionsManager
@@ -43,17 +44,16 @@ import com.mapbox.mapboxsdk.maps.MapView
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
 import com.mapbox.mapboxsdk.maps.Style
-import com.mapbox.mapboxsdk.plugins.annotation.CircleManager
-import com.mapbox.mapboxsdk.plugins.annotation.CircleOptions
 import com.mapbox.mapboxsdk.style.layers.FillLayer
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory.*
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
 import com.mapbox.mapboxsdk.utils.BitmapUtils
-import com.mapbox.mapboxsdk.utils.ColorUtils
 import com.mapbox.turf.TurfConstants
 import com.mapbox.turf.TurfMeta
 import com.mapbox.turf.TurfTransformation
+import timber.log.Timber
+import java.util.*
 
 class LocationViewActivity : AppCompatActivity(), PermissionsListener, OnMapReadyCallback {
 
@@ -65,16 +65,18 @@ class LocationViewActivity : AppCompatActivity(), PermissionsListener, OnMapRead
     private lateinit var callback: LocationListeningCallback
     private lateinit var locationEngine: LocationEngine
     private lateinit var loadedStyleMap: Style
-    private var circleManager: CircleManager? = null
     private var currentUserLatitude = 0.0
     private var currentUserLongitude = 0.0
-    private var currentWorkingPoint = Point.fromLngLat(
-        currentWorkingCoordinate.longitude,
-        currentWorkingCoordinate.latitude
-    )
+    private lateinit var currentWorkingPoint: Point
+    private lateinit var currentWorkingCoordinate: LatLng
+    private lateinit var currentWorkingPlaceName: String
+    private var startWorking: String = ""
+    private var stopWorking: String = ""
     private var circleUnit = TurfConstants.UNIT_METERS
     private var circleSteps = 180
     private var circleRadius = 100.0
+
+    private lateinit var sharedPref: SharedPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -85,12 +87,14 @@ class LocationViewActivity : AppCompatActivity(), PermissionsListener, OnMapRead
         setContentView(binding.root)
 
         setBackButton()
+        setSharedPref()
+        setCurrentWorkingPoint()
         setMapView(savedInstanceState)
         setWorkingLocationInformation()
         setStatusBarColor()
     }
 
-    private inner class LocationListeningCallback(activity: LocationViewActivity) :
+    private inner class LocationListeningCallback :
         LocationEngineCallback<LocationEngineResult> {
 
         override fun onSuccess(result: LocationEngineResult?) {
@@ -108,27 +112,155 @@ class LocationViewActivity : AppCompatActivity(), PermissionsListener, OnMapRead
 
                 map.animateCamera(CameraUpdateFactory.newLatLngBounds(latLngBounds, 200), 1000)
 
-                getMFromLatLong(currentUserLatitude, currentUserLongitude, currentWorkingCoordinate.latitude, currentWorkingCoordinate.longitude)
+                changeBottomButtonBehaviour(
+                    getMFromLatLong(
+                        currentUserLatitude,
+                        currentUserLongitude,
+                        currentWorkingCoordinate.latitude,
+                        currentWorkingCoordinate.longitude
+                    )
+                )
 
-                Log.d("Check USER LatLng", userLatLng.toString())
+                Timber.d(userLatLng.toString())
             }
         }
 
         override fun onFailure(exception: Exception) {
-            Toast.makeText(this@LocationViewActivity, "Location Update Failed", Toast.LENGTH_SHORT)
+            Toast.makeText(
+                this@LocationViewActivity,
+                "Failed to get location. Is GPS enabled ?",
+                Toast.LENGTH_SHORT
+            )
                 .show()
         }
     }
 
-    private fun getMFromLatLong(lat1: Double, lng1: Double, lat2: Double, lng2: Double) {
+    private fun setSharedPref() {
+        sharedPref = getSharedPreferences(getString(R.string.user_data), Context.MODE_PRIVATE)
+    }
+
+    private fun setCurrentWorkingPoint() {
+        currentWorkingCoordinate = LatLng(
+            sharedPref.getFloat(getString(R.string.user_work_place_latitude), 0.0F).toDouble(),
+            sharedPref.getFloat(getString(R.string.user_work_place_longitude), 0.0F).toDouble(),
+        )
+        currentWorkingPoint = Point.fromLngLat(
+            currentWorkingCoordinate.longitude,
+            currentWorkingCoordinate.latitude
+        )
+        currentWorkingPlaceName = sharedPref.getString(getString(R.string.user_work_place_name), "").toString()
+    }
+
+    private fun changeBottomButtonBehaviour(distance: Float) {
+        if (distance >= 100f) {
+            binding.apply {
+                cvBottomButton.setBackgroundColor(
+                    ContextCompat.getColor(
+                        this@LocationViewActivity,
+                        R.color.blank_background_color
+                    )
+                )
+                cvBottomButton.setOnClickListener { }
+            }
+        } else {
+            binding.apply {
+                reloadFromSharedPref()
+                when {
+                    startWorking == "" -> {
+                        tvBottomButton.text = getString(R.string.start_working)
+                        displayBottomButton(true)
+                        cvBottomButton.setOnClickListener {
+                            editTodayCheckInSharedPref(Date().toString())
+                        }
+                    }
+                    stopWorking == "" -> {
+                        binding.tvBottomButton.text = getString(R.string.finish_working)
+                        displayBottomButton(true)
+                        cvBottomButton.setOnClickListener {
+                            editTodayCheckOutSharedPref(Date().toString())
+                        }
+                    }
+                    else -> {
+                        displayBottomButton(false)
+                        vBottomContainer.updateLayoutParams {
+                            val pixels = TypedValue.applyDimension(
+                                TypedValue.COMPLEX_UNIT_DIP,
+                                240f,
+                                resources.displayMetrics
+                            )
+                            vBottomContainer.updateLayoutParams {
+                                height = pixels.toInt()
+                            }
+                        }
+                    }
+                }
+                cvBottomButton.setBackgroundColor(
+                    ContextCompat.getColor(
+                        this@LocationViewActivity,
+                        R.color.blue_primary
+                    )
+                )
+            }
+        }
+    }
+
+    private fun getMFromLatLong(lat1: Double, lng1: Double, lat2: Double, lng2: Double): Float {
         val loc1 = Location("")
         loc1.latitude = lat1
         loc1.longitude = lng1
         val loc2 = Location("")
         loc2.latitude = lat2
         loc2.longitude = lng2
-        val distanceInMeters = loc1.distanceTo(loc2)
-        binding.tvDistance.text = distanceInMeters.toString()
+        return loc1.distanceTo(loc2)
+    }
+
+    @SuppressLint("SetTextI18n")
+    private fun reloadFromSharedPref() {
+        val sharedPref = getSharedPreferences(getString(R.string.user_data), Context.MODE_PRIVATE)
+
+        sharedPref.getString(getString(R.string.user_today_checkin), "").also {
+            startWorking = it.toString()
+            if (startWorking != "")
+                binding.tvStartHour.text = "$startWorking WIB"
+
+        }
+        sharedPref.getString(getString(R.string.user_today_checkout), "").also {
+            stopWorking = it.toString()
+            if (stopWorking != "")
+                binding.tvEndHour.text = "$stopWorking WIB"
+        }
+    }
+
+    private fun editTodayCheckInSharedPref(date: String) {
+        val hhMM = date.substring(11, 16)
+
+        val sharedPref = getSharedPreferences(getString(R.string.user_data), Context.MODE_PRIVATE)
+        with(sharedPref.edit()) {
+            putString(getString(R.string.user_today_checkin), hhMM)
+            apply()
+        }
+    }
+
+    private fun editTodayCheckOutSharedPref(date: String) {
+        val hhMM = date.substring(11, 16)
+
+        val sharedPref = getSharedPreferences(getString(R.string.user_data), Context.MODE_PRIVATE)
+        with(sharedPref.edit()) {
+            putString(getString(R.string.user_today_checkout), hhMM)
+            apply()
+        }
+    }
+
+    private fun displayBottomButton(bool: Boolean) {
+        binding.apply {
+            if (bool) {
+                cvBottomButton.visibility = View.VISIBLE
+                tvBottomButton.visibility = View.VISIBLE
+            } else {
+                cvBottomButton.visibility = View.GONE
+                tvBottomButton.visibility = View.GONE
+            }
+        }
     }
 
     @SuppressLint("ObsoleteSdkInt")
@@ -150,7 +282,7 @@ class LocationViewActivity : AppCompatActivity(), PermissionsListener, OnMapRead
     private fun setMapView(savedInstanceState: Bundle?) {
         mapView = binding.mapView
         mapView?.onCreate(savedInstanceState)
-        callback = LocationListeningCallback(this)
+        callback = LocationListeningCallback()
         mapView?.getMapAsync(this)
     }
 
@@ -195,9 +327,6 @@ class LocationViewActivity : AppCompatActivity(), PermissionsListener, OnMapRead
 
             initLocationEngine()
         } else {
-            Handler(Looper.getMainLooper()).postDelayed({
-                finish()
-            }, 1000)
             permissionsManager = PermissionsManager(this)
             permissionsManager.requestLocationPermissions(this)
         }
@@ -332,13 +461,11 @@ class LocationViewActivity : AppCompatActivity(), PermissionsListener, OnMapRead
             val polygonCircleSource = it.getSourceAs<GeoJsonSource>(
                 TURF_CALCULATION_FILL_LAYER_GEOJSON_SOURCE_ID
             )
-            if (polygonCircleSource != null) {
-                polygonCircleSource.setGeoJson(
-                    Polygon.fromOuterInner(
-                        LineString.fromLngLats(TurfMeta.coordAll(polygonArea, false))
-                    )
+            polygonCircleSource?.setGeoJson(
+                Polygon.fromOuterInner(
+                    LineString.fromLngLats(TurfMeta.coordAll(polygonArea, false))
                 )
-            }
+            )
         }
     }
 

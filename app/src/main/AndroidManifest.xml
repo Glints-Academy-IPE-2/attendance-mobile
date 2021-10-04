@@ -15,7 +15,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Localattendance_app">
         <activity
-            android:name=".ui.placepicker.PlacePickerActivity"
+            android:name=".ui.blank.BlankActivity"
             android:exported="true"
             android:theme="@style/Theme.AppCompat.DayNight.NoActionBar">
             <intent-filter>
@@ -23,6 +23,12 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity
+            android:name=".ui.placepicker.PlacePickerActivity"
+            android:exported="true"
+            android:theme="@style/Theme.AppCompat.DayNight.NoActionBar">
+
         </activity>
 
         <receiver
@@ -38,9 +44,7 @@
         <activity
             android:name=".ui.home.HomeActivity"
             android:exported="true"
-            android:theme="@style/Theme.AppCompat.DayNight.NoActionBar">
-
-        </activity>
+            android:theme="@style/Theme.AppCompat.DayNight.NoActionBar" />
     </application>
 
 </manifest>
